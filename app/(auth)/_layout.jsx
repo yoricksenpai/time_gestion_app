@@ -1,8 +1,16 @@
-import React from "react";
-import { Stack } from "expo-router";
+import React, {useContext, useEffect} from "react";
+import {Stack, useRouter} from "expo-router";
 import { StatusBar } from "expo-status-bar";
-
+import { AuthContext } from '../../contexts/AuthContext';
 const Auth_layout = () => {
+    const { user } = useContext(AuthContext);
+    const router = useRouter();
+    useEffect(() => {
+        if (user) {
+            // Rediriger vers la page d'accueil si l'utilisateur est déjà connecté
+            router.replace('/(tabs)/Home');
+        }
+    }, [user]);
   return (
     <>
       <Stack>

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from "expo-font";
-
+import { AuthContext } from '../../contexts/AuthContext';
 const ProgressBar = ({ progress, total }) => {
   const width = `${(progress / total) * 100}%`;
   return (
@@ -41,7 +41,9 @@ const Goal = ({ title, description, progress, total }) => (
 );
 
 const Profile = () => {
-  const [fontsLoaded] = useFonts({
+    const { user, logout } = useContext(AuthContext);
+
+    const [fontsLoaded] = useFonts({
     Poppins: require('../../assets/fonts/Poppins-Regular.ttf'),
     PoppinsBold: require('../../assets/fonts/Poppins-Bold.ttf'),
   });
@@ -50,8 +52,8 @@ const Profile = () => {
       <View className="flex-row items-center gap-6 mb-6">
         <Ionicons name="logo-react" size={24} color="#000" />
         <View>
-          <Text className="text-xl font-poppinsbold">TimeZen</Text>
-          <Text className="text-lg font-poppins">@timezen.app</Text>
+            <Text className="text-xl font-poppinsbold">{user?.name || 'TimeZen'}</Text>
+            <Text className="text-lg font-poppins">{user?.email || '@timezen.app'}</Text>
         </View>
       </View>
       <Text className="text-lg font-poppinsbold mb-6">Insights</Text>
@@ -75,6 +77,9 @@ const Profile = () => {
           total={2}
         />
       </View>
+        <TouchableOpacity onPress={logout} className="mt-8 bg-red-500 p-4 rounded-lg">
+            <Text className="text-white text-center font-poppinsbold">Logout</Text>
+        </TouchableOpacity>
     </ScrollView>
   );
 };

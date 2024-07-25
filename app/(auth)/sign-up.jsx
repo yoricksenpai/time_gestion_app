@@ -4,10 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton2";
-import { Link } from "expo-router";
+import {Link, useNavigation} from "expo-router";
 import PasswordStrengthIndicator from "./TempFile";
 import { styled } from "nativewind";
 import {useFonts} from "expo-font";
+import { registerUser, loginUser } from '../../api/auth';
 
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledScrollView = styled(ScrollView);
@@ -16,6 +17,7 @@ const StyledText = styled(Text);
 const StyledImage = styled(Image);
 
 const Inscription = () => {
+  const navigation = useNavigation();
   const [fontsLoaded] = useFonts({
     poppinsBold: require('../../assets/fonts/Poppins-Bold.ttf'),
     Poppins: require('../../assets/fonts/Poppins-Regular.ttf'),
@@ -41,8 +43,22 @@ const Inscription = () => {
     return "faible";
   };
 
-  const submit = () => {};
-
+  const submit = async () => {
+    if (form.password !== form.confirmPassword) {
+      alert("Les mots de passe ne correspondent pas");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const result = await registerUser(form.email, form.password);
+      alert("Inscription réussie");
+      navigation.navigate('SignIn');
+    } catch (error) {
+      alert("Erreur lors de l'inscription");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <StyledSafeAreaView className='bg-white h-full'>
       <StyledScrollView>

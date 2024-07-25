@@ -4,9 +4,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton2";
-import { Link, router } from "expo-router";
+import {Link, router, useNavigation} from "expo-router";
 import { styled } from "nativewind";
-
+import { registerUser, loginUser } from '../../api/auth';
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
 const StyledImage = styled(Image);
@@ -14,14 +14,27 @@ const StyledText = styled(Text);
 const StyledLink = styled(Link);
 
 const Connection = () => {
+  const navigation = useNavigation();
+
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submit = () => {};
-
+  const submit = async () => {
+    setIsSubmitting(true);
+    try {
+      const result = await loginUser(form.email, form.password);
+      // Stockez le token JWT ici, par exemple avec AsyncStorage
+      // AsyncStorage.setItem('userToken', result.token);
+      navigation.navigate('Home');
+    } catch (error) {
+      alert("Erreur de connexion");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
       <StyledSafeAreaView className='bg-white flex-1 justify-center w-full'>
         <StyledView className='w-full mx-auto justify-center items-center px-4 my-4'>

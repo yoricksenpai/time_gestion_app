@@ -1,9 +1,19 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
-import { Tabs } from 'expo-router';
+import React, {useContext, useEffect} from 'react';
+import {Tabs, useRouter} from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import {AuthContext} from "../../contexts/AuthContext";
 
 const TabsLayout = () => {
+    const { user } = useContext(AuthContext);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!user) {
+            // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+            router.replace('/(auth)/sign-in');
+        }
+    }, [user]);
   return (
     <>
           <Tabs name='App' options={{ headerShown: false, title: 'Home' }}>
