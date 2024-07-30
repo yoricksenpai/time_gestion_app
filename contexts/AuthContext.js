@@ -4,36 +4,39 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
-        checkToken();
+        checkUser();
     }, []);
 
-    const checkToken = async () => {
+    const checkUser = async () => {
         setIsLoading(true);
         try {
-            const token = await AsyncStorage.getItem('userToken');
-            setIsAuthenticated(!!token);
+            const userJson = await AsyncStorage.getItem('user');
+            if (userJson) {
+                setUser(JSON.parse(userJson));
+            }
         } catch (error) {
-            console.error('Error checking token:', error);
-            setIsAuthenticated(false);
+            console.error('Error checking user:', error);
         } finally {
             setIsLoading(false);
         }
     };
-    const login = async (token) => {
-        await AsyncStorage.setItem('userToken', token);
-        setIsAuthenticated(true);
+
+    const login = async (userData) => {
+        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
     };
 
     const logout = async () => {
-        await AsyncStorage.removeItem('userToken');
-        setIsAuthenticated(false);
+        await AsyncStorage.removeItem('user');
+        setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

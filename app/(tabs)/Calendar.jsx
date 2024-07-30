@@ -18,7 +18,7 @@ const CalendarComponent = () => {
             <View className="bg-[#F0F0F0] p-4 rounded-lg mb-4">
 
                 <View className='mb-1'>
-                    <Text className="text-lg font-poppinsbold">{title}</Text>
+                    <Text className="text-lg font-poppins">{title}</Text>
                     <Text className=" font-poppins">{time}</Text>
                 </View>
             </View>

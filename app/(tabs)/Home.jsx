@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Text, View, TextInput, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
+import {router} from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
 
 const BentoGrid = ({ children }) => {
   return (
@@ -18,7 +22,7 @@ const BentoGridItem = ({ title, isSelected, isMultiSelect, onPress, onLongPress 
       onPress={onPress}
       onLongPress={onLongPress}
     >
-      <Text className={`text-base font-poppinsbold ${isSelected ? 'text-white' : 'text-gray-800'}`}>
+      <Text className={`text-base font-poppins ${isSelected ? 'text-white' : 'text-gray-800'}`}>
         {title}
       </Text>
     </TouchableOpacity>
@@ -26,6 +30,8 @@ const BentoGridItem = ({ title, isSelected, isMultiSelect, onPress, onLongPress 
 };
 
 const Home = () => {
+
+  const [isLoading, setIsLoading] = useState(true);
   const [fontsLoaded] = useFonts({
     Poppins: require('../../assets/fonts/Poppins-Regular.ttf'),
     PoppinsBold: require('../../assets/fonts/Poppins-Bold.ttf'),
@@ -36,6 +42,20 @@ const Home = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const underlineWidth = useRef(new Animated.Value(0)).current;
   const underlinePosition = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    checkAuth().then(r => "is a User");
+  }, []);
+
+  const checkAuth = async () => {
+    const userToken = await AsyncStorage.getItem('userToken');
+    console.log(userToken)
+    if (!userToken) {
+      router.replace('/(auth)/sign-in');
+    } else {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (selectedItems.length === 0) {
@@ -49,15 +69,15 @@ const Home = () => {
       duration: 300,
       useNativeDriver: false,
     }).start();
-    
+
     Animated.spring(underlinePosition, {
-      toValue: selectedTab * 116.4, // assuming each tab has 100 width
+      toValue: selectedTab * 116.4,
       useNativeDriver: false,
     }).start();
   }, [selectedTab]);
 
-  if (!fontsLoaded) {
-    return null;
+  if (isLoading || !fontsLoaded) {
+    return <View><Text>Loading...</Text></View>;
   }
 
   const handlePress = (title) => {
@@ -99,7 +119,7 @@ const Home = () => {
       <View className="flex-row justify-between px-4 mb-4 relative">
         {tabs.map((tab, index) => (
           <TouchableOpacity key={index} onPress={() => setSelectedTab(index)}>
-            <Text className={`font-poppinsbold ${selectedTab === index ? 'text-sky-600' : 'text-gray-800'}`}>
+            <Text className={`font-poppins ${selectedTab === index ? 'text-sky-600' : 'text-gray-800'}`}>
               {tab}
             </Text>
           </TouchableOpacity>
@@ -132,7 +152,7 @@ const Home = () => {
             {isMultiSelect ? (
               <Ionicons name="trash" size={24} color="white" />
             ) : (
-              <Text className="text-base font-poppinsbold text-white">+</Text>
+              <Text className="text-base font-poppins text-white">+</Text>
             )}
           </TouchableOpacity>
         </View>

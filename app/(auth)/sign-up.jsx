@@ -8,7 +8,7 @@ import {Link, useNavigation} from "expo-router";
 import PasswordStrengthIndicator from "./TempFile";
 import { styled } from "nativewind";
 import {useFonts} from "expo-font";
-import { registerUser, loginUser } from '../../api/auth';
+import { registerUser } from '../../api/auth';
 
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledScrollView = styled(ScrollView);
@@ -52,7 +52,7 @@ const Inscription = () => {
     try {
       const result = await registerUser(form.email, form.password);
       alert("Inscription réussie");
-      navigation.navigate('SignIn');
+      navigation.navigate('sign-in');
     } catch (error) {
       alert("Erreur lors de l'inscription");
     } finally {
@@ -112,7 +112,7 @@ const Inscription = () => {
               Already used Timezen App ?
             </StyledText>
             <Link
-                style={{ fontFamily: 'poppinsBold' }}
+                style={{ fontFamily: 'poppins' }}
               href='/sign-in'
               className='text-base  font-poppins underline'
             >

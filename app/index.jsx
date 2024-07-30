@@ -1,27 +1,3 @@
-// import React from 'react';
-// import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-// import { Link } from 'expo-router';
-// import { Ionicons } from '@expo/vector-icons';
-// const App = () => {
-//   const [fontsLoaded] = useFonts({
-//     poppinsBold: require('../assets/fonts/Poppins-Bold.ttf'),
-//     Poppins: require('../assets/fonts/Poppins-Regular.ttf'),
-//   });
-//
-//   if (!fontsLoaded) {
-//     return null;
-//   }
-//
-//   return (
-//       <View className='flex-1 items-center bg-slate-200 dark:bg-slate-800 justify-center'>
-//         <Text className='text-3xl dark:text-white font-poppinsBold'>Timezen</Text>
-//         <Text className=' dark:text-white font-poppins font-light'>Enhance time management skills effortlessly</Text>
-//         <Link className='dark:text-white' href='/Profile'>Go test the tabs</Link>
-//       </View>
-//   );
-// };
-//
-// export default App;
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from "expo-font";
 import {  Text, View } from 'react-native';
@@ -68,7 +44,7 @@ export default function App() {
 
 
                         <CustomButton2
-                            title="Create And Account"
+                            title="Connect you to Timezen"
                             handlePress={()=> router.push('/sign-in')}
                         />
 

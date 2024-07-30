@@ -15,7 +15,7 @@ const ProgressBar = ({ progress, total }) => {
 const Stat = ({ icon, value, label }) => (
   <View className="grid items-center text-center w-[27%]">
     <Ionicons name={icon} size={30} color="#000" />
-    <Text className="text-xl text-center  font-poppinsbold">{value}</Text>
+    <Text className="text-xl text-center  font-poppins">{value}</Text>
     <Text className=" text-center text-xs font-poppins">{label}</Text>
   </View>
 );
@@ -24,8 +24,8 @@ const Goal = ({ title, description, progress, total }) => (
   <TouchableOpacity>
   <View className="bg-[#F0F0F0] p-6 rounded-lg mb-4">
 
-    <View className='mb-2'>
-    <Text className="text-lg font-poppinsbold">{title}</Text>
+    <View className='mb-2 '>
+    <Text className="text-lg font-poppins">{title}</Text>
     <Text className="mb-2 font-poppins">{description}</Text>
     </View>
     
@@ -49,20 +49,20 @@ const Profile = () => {
   });
   return (
     <ScrollView className="flex-1 bg-gray-50 p-6">
-      <View className="flex-row items-center gap-6 mb-6">
+      <View className="flex-row items-center gap-6 mb-6 m-8">
         <Ionicons name="logo-react" size={24} color="#000" />
-        <View>
-            <Text className="text-xl font-poppinsbold">{user?.name || 'TimeZen'}</Text>
+        <View >
+            <Text className="text-xl font-poppins">{user?.name || 'TimeZen'}</Text>
             <Text className="text-lg font-poppins">{user?.email || '@timezen.app'}</Text>
         </View>
       </View>
-      <Text className="text-lg font-poppinsbold mb-6">Insights</Text>
+      <Text className="text-lg font-poppins mb-6">Insights</Text>
       <View className="flex-row justify-between mb-8">
         <Stat icon="time" value="100%" label="Time management" />
         <Stat icon="flame" value="10,000" label="Activity tracked" />
         <Stat icon="trophy" value="10" label="Achievements" />
       </View>
-      <Text className="text-lg font-poppinsbold mb-6">Goals</Text>
+      <Text className="text-lg font-poppins mb-6">Goals</Text>
       <View>
         <Goal
           title="Productivity guru"
@@ -77,8 +77,8 @@ const Profile = () => {
           total={2}
         />
       </View>
-        <TouchableOpacity onPress={logout} className="mt-8 bg-red-500 p-4 rounded-lg">
-            <Text className="text-white text-center font-poppinsbold">Logout</Text>
+        <TouchableOpacity onPress={logout} className="mt-8 bg-red-500 p-4 rounded-lg  m-6 mb-9">
+            <Text className="text-white text-center font-poppins">Logout</Text>
         </TouchableOpacity>
     </ScrollView>
   );

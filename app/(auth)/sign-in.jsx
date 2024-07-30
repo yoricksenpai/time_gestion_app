@@ -1,12 +1,13 @@
 import { View, Text, Image } from "react-native";
-import React, { useState } from "react";
+import React, {useContext, useState} from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton2";
 import {Link, router, useNavigation} from "expo-router";
 import { styled } from "nativewind";
-import { registerUser, loginUser } from '../../api/auth';
+import {  loginUser } from '../../api/auth';
+import { AuthContext } from '../../contexts/AuthContext';
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
 const StyledImage = styled(Image);
@@ -14,8 +15,7 @@ const StyledText = styled(Text);
 const StyledLink = styled(Link);
 
 const Connection = () => {
-  const navigation = useNavigation();
-
+  const { login } = useContext(AuthContext);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -26,9 +26,12 @@ const Connection = () => {
     setIsSubmitting(true);
     try {
       const result = await loginUser(form.email, form.password);
-      // Stockez le token JWT ici, par exemple avec AsyncStorage
-      // AsyncStorage.setItem('userToken', result.token);
-      navigation.navigate('Home');
+      // Utilisez la fonction login du contexte
+      await login({
+        token: result.token,
+        // Ajoutez ici d'autres informations sur l'utilisateur si nécessaire
+      });
+      router.replace('/(tabs)/Home');
     } catch (error) {
       alert("Erreur de connexion");
     } finally {

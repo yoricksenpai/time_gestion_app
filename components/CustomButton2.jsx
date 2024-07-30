@@ -13,12 +13,12 @@ const CustomButton = ({title, handlePress,isLoading}) => {
     onPress={handlePress}
     activeOpacity={0.7}
     className={`bg-sky-500 rounded-xl 
-    h-14 w-full mt-7 justify-center items-center
+    h-14 w-full mt-7 justify-center items-center 
     ${isLoading ? 'opacity-50' : ''}`}
     disabled={isLoading}
     >
-      <Text style={{ fontFamily: 'poppinsBold' }} className={`
-        text-lg`}>
+      <Text  className={`
+        text-lg font-poppins`}>
             {title}
         </Text>
     </TouchableOpacity>
