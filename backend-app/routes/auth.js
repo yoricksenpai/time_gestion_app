@@ -28,5 +28,17 @@ router.post('/login', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
-
+router.delete('/delete_user/:id', async(req, res)=>{
+    try{
+        const userId = req.params.id;
+        const deletedUser = await User.findByIdAndDelete(userId)
+        if(!deletedUser){
+            return res.status(404).json({error:"Utilisateur non trouvé"})
+        }
+        res.json({message:"Utilisateur supprimé avec succès"})
+    }catch(error){
+        console.error("Erreur lors de la suppression de l'utilisateur:", error);
+        res.status(500).json({error: "erreur interne du serveur, contacter le developeur"})
+    }
+})
 export default router;

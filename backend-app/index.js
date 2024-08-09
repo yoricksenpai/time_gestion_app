@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import connectDB from './config/database.js';
 import authRoutes from './routes/auth.js';
+import activityRoutes from './routes/activity.js';
 
 const app = express();
 
@@ -35,5 +36,9 @@ app.use('/auth', (req, res, next) => {
     next();
 }, authRoutes);
 
+app.use('/activity', (req, res, next) =>{
+    console.log('Received activity request:', req.method, req.url, req.body);
+    next();
+}, activityRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
