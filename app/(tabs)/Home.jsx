@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Text, View, TextInput, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
-import {router} from "expo-router";
+import {router, useRouter} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const router2 = useRouter()
 
 
 const BentoGrid = ({ children }) => {
@@ -148,11 +149,20 @@ const Home = () => {
           />
         ))}
         <View className="w-[48%] h-30 mb-4 rounded-md items-center justify-center">
-          <TouchableOpacity className="p-5 rounded-md bg-blue-500 shadow-md" onPress={isMultiSelect ? handleClearSelection : null}>
+          <TouchableOpacity
+              className={`p-5 rounded-md ${isMultiSelect ? 'bg-red-500' : 'bg-blue-500'} shadow-md`}
+              onPress={() => {
+                if (isMultiSelect) {
+                  handleClearSelection();
+                } else {
+                  router2.push('/Create');
+                }
+              }}
+          >
             {isMultiSelect ? (
-              <Ionicons name="trash" size={24} color="white" />
+                <Ionicons name="trash" size={24} color="white" />
             ) : (
-              <Text className="text-base font-poppins text-white">+</Text>
+                <Ionicons name="add" size={24} color="white" />
             )}
           </TouchableOpacity>
         </View>

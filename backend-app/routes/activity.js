@@ -5,9 +5,20 @@ import Activity from "../models/Activity.js";
 const router = express.Router();
 router.post('/create_activity', async (req, res) => {
     try{
-        const {name, description, nature} = req.body;
-        const activity= new Activity({name, description, nature})
-        await activity.save();
+        const {name, description, nature, allDay, endDate, creationDate, reminderTime} = req.body;
+        const activityData= new Activity({name, description, nature, creationDate:new Date()});
+            if(nature === "Reminder" && reminderTime) {
+                activityData.reminderTime = new Date(reminderTime)
+
+        }
+        if (['Tasks', 'Events'].includes(nature) && endDate) {
+            activityData.endDate = new Date(endDate);
+        }
+            if (nature === "Event"){
+                activityData.allDay = allDay  || false;
+            }
+
+        await activityData.save();
         res.status(201).json({message:"Your task are successfully created"})
     } catch(error){
         res.status(400).json({error:error.message})
@@ -36,7 +47,7 @@ router.delete('/delete_activity/:id', async(req, res) =>{
     }
 })
 
-router.update('/update_activity/:id', async(req, res) =>{
+router.put('/update_activity/:id', async(req, res) =>{
     try{
         const activityId = req.params.id;
         const updatedActivity = await Activity.findByIdAndUpdate(activityId);

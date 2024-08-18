@@ -1,9 +1,9 @@
-import { useFonts } from "expo-font";
-  const [fontsLoaded] = useFonts({
-    PoppinsBold: require('../assets/fonts/Poppins-Bold.ttf'),
-    Poppins: require('../assets/fonts/Poppins-Regular.ttf'),
-    Julius: require('../assets/fonts/JuliusSansOne-Regular.ttf'),
+// hooks/useFonts.js
+import { useFonts as useExpoFonts } from 'expo-font';
 
-
+export const useFonts = () => {
+  return useExpoFonts({
+    poppinsBold: require('../assets/fonts/Poppins-Bold.ttf'),
+    poppins: require('../assets/fonts/Poppins-Regular.ttf'),
   });
-  export default fontsLoaded
+};

@@ -1,9 +1,10 @@
     // components/CustomButton.jsx
 
 import { TouchableOpacity, Text } from "react-native";
-import React from "react";
+import React, {useCallback} from "react";
 import { styled } from "nativewind";
-    import {useFonts} from "expo-font"; // Ensure nativewind is imported
+    import {useFonts} from "../hooks/useFonts";
+    import * as SplashScreen from "expo-splash-screen"; // Ensure nativewind is imported
 
 const StyledTouchableOpacity = styled(TouchableOpacity);
 const StyledText = styled(Text);
@@ -16,10 +17,17 @@ const CustomButton = ({
   isLoading,
 }) => {
 
-    const [fontsLoaded] = useFonts({
-        poppinsBold: require('../assets/fonts/Poppins-Bold.ttf'),
-        Poppins: require('../assets/fonts/Poppins-Regular.ttf'),
-    });
+    const [fontsLoaded] = useFonts();
+
+    const onLayoutRootView = useCallback(async () => {
+        if (fontsLoaded) {
+            await SplashScreen.hideAsync();
+        }
+    }, [fontsLoaded]);
+
+    if (!fontsLoaded) {
+        return null;
+    }
   return (
     <StyledTouchableOpacity
       style={{

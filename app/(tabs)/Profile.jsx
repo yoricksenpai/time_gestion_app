@@ -1,8 +1,9 @@
-import React, {useContext} from 'react';
+import React, {useCallback, useContext} from 'react';
 import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFonts } from "expo-font";
-import { AuthContext } from '../../contexts/AuthContext';
+import { useFonts } from '@/hooks/useFonts';
+import { AuthContext } from '@/contexts/AuthContext';
+import * as SplashScreen from "expo-splash-screen";
 const ProgressBar = ({ progress, total }) => {
   const width = `${(progress / total) * 100}%`;
   return (
@@ -43,19 +44,34 @@ const Goal = ({ title, description, progress, total }) => (
 const Profile = () => {
     const { user, logout } = useContext(AuthContext);
 
-    const [fontsLoaded] = useFonts({
-    Poppins: require('../../assets/fonts/Poppins-Regular.ttf'),
-    PoppinsBold: require('../../assets/fonts/Poppins-Bold.ttf'),
-  });
+    const [fontsLoaded] = useFonts();
+
+    const onLayoutRootView = useCallback(async () => {
+        if (fontsLoaded) {
+            await SplashScreen.hideAsync();
+        }
+    }, [fontsLoaded]);
+
+    if (!fontsLoaded) {
+        return null;
+    }
   return (
     <ScrollView className="flex-1 bg-gray-50 p-6">
-      <View className="flex-row items-center gap-6 mb-6 m-8">
-        <Ionicons name="logo-react" size={24} color="#000" />
-        <View >
-            <Text className="text-xl font-poppins">{user?.name || 'TimeZen'}</Text>
-            <Text className="text-lg font-poppins">{user?.email || '@timezen.app'}</Text>
+        <View className="flex-row items-center justify-between mb-6 m-8">
+            <View className="flex-row items-center gap-6">
+                <Ionicons name="logo-react" size={24} color="#000" />
+                <View>
+                    <Text className="text-xl font-poppins">{user?.name || 'TimeZen'}</Text>
+                    <Text className="text-lg font-poppins">{user?.email || '@timezen.app'}</Text>
+                </View>
+
+            </View>
+<View>
+    <TouchableOpacity onPress={logout}>
+        <Ionicons name="log-out-outline" size={24} color="#000" />
+    </TouchableOpacity>
+</View>
         </View>
-      </View>
       <Text className="text-lg font-poppins mb-6">Insights</Text>
       <View className="flex-row justify-between mb-8">
         <Stat icon="time" value="100%" label="Time management" />
@@ -77,9 +93,6 @@ const Profile = () => {
           total={2}
         />
       </View>
-        <TouchableOpacity onPress={logout} className="mt-8 bg-red-500 p-4 rounded-lg  m-6 mb-9">
-            <Text className="text-white text-center font-poppins">Logout</Text>
-        </TouchableOpacity>
     </ScrollView>
   );
 };
