@@ -3,9 +3,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const Goal = ({ title, time }) => (
     <TouchableOpacity style={styles.container}>
-        <View style={styles.content}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.time}>{time}</Text>
+        <View className="bg-amber-400 rounded-md shadow-md mb-3 p-4"  style={styles.content}>
+            <Text className="text-lg font-semibold font-poppins text-white" style={styles.title}>{title}</Text>
+            <Text className="text-white font-poppins" style={styles.time}>{time}</Text>
         </View>
     </TouchableOpacity>
 );

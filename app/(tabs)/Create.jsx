@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const Create = () => {
     const [name, setName] = useState('');
@@ -121,16 +122,25 @@ const Create = () => {
         },
     });
 
-    return (
-        <SafeAreaView style={{ flex: 1 }} className='bg-gray-50'>
+     return (
+        <SafeAreaView className="flex-1 bg-gray-50">
             <Animated.ScrollView
-                className = 'p-5'
+                className="p-5"
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
             >
-                <Text className="text-3xl font-poppins font-bold mb-6 text-blue-600">Create New Activity</Text>
-
-                <View className="mb-4">
+                <TouchableOpacity onPress={() => router.back()} className="mb-4">
+                    <Ionicons name="arrow-back" size={24} color="#3B82F6" />
+                </TouchableOpacity>
+                 <LinearGradient
+                     colors={['#BFDBFE', '#A5F3FC']}
+                     className="flex-1 justify-center items-center rounded-2xl shadow-lg mb-1"
+                           start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                 >
+                <Text className="text-3xl font-poppinsBold mb-6 text-blue-600 p-10 text-center">Create New Activity</Text>
+                </LinearGradient>
+                     <View className="mb-4">
                     <Text className="font-poppins text-gray-700 mb-2">Name</Text>
                     <TextInput
                         className="border border-gray-300 rounded-lg p-3 font-poppins bg-white"
@@ -176,7 +186,7 @@ const Create = () => {
                                 onPress={() => setShowReminderDatePicker(true)}
                             >
                                 <Text className="font-poppins">{reminderDate.toDateString()}</Text>
-                                <Ionicons name="calendar-outline" size={24} color="gray" />
+                                <Ionicons name="calendar-outline" size={24} color="#3B82F6" />
                             </TouchableOpacity>
                             {renderDateTimePicker(showReminderDatePicker, reminderDate, (event, date) => onChangeDate(event, date, 'reminderDate'), 'date')}
                         </View>
@@ -187,7 +197,7 @@ const Create = () => {
                                 onPress={() => setShowReminderTimePicker(true)}
                             >
                                 <Text className="font-poppins">{reminderTime.toLocaleTimeString()}</Text>
-                                <Ionicons name="time-outline" size={24} color="gray" />
+                                <Ionicons name="time-outline" size={24} color="#3B82F6" />
                             </TouchableOpacity>
                             {renderDateTimePicker(showReminderTimePicker, reminderTime, (event, date) => onChangeDate(event, date, 'reminderTime'), 'time')}
                         </View>
@@ -203,7 +213,7 @@ const Create = () => {
                                 onPress={() => setShowEndDatePicker(true)}
                             >
                                 <Text className="font-poppins">{endDate.toDateString()}</Text>
-                                <Ionicons name="calendar-outline" size={24} color="gray" />
+                                <Ionicons name="calendar-outline" size={24} color="#3B82F6" />
                             </TouchableOpacity>
                             {renderDateTimePicker(showEndDatePicker, endDate, (event, date) => onChangeDate(event, date, 'endDate'), 'date')}
                         </View>
@@ -215,14 +225,14 @@ const Create = () => {
                                     onPress={() => setShowEndTimePicker(true)}
                                 >
                                     <Text className="font-poppins">{endTime.toLocaleTimeString()}</Text>
-                                    <Ionicons name="time-outline" size={24} color="gray" />
+                                    <Ionicons name="time-outline" size={24} color="#3B82F6" />
                                 </TouchableOpacity>
                                 {renderDateTimePicker(showEndTimePicker, endTime, (event, date) => onChangeDate(event, date, 'endTime'), 'time')}
                             </View>
                         )}
                         {nature === 'Event' && (
                             <TouchableOpacity
-                                className="flex-row items-center "
+                                className="flex-row items-center mb-4"
                                 onPress={() => setAllDay(!allDay)}
                             >
                                 <View className={`w-6 h-6 border-2 border-blue-500 rounded mr-2 ${allDay ? 'bg-blue-500' : 'bg-white'}`} />
@@ -233,7 +243,7 @@ const Create = () => {
                 )}
                 <View className="flex items-center mt-4 mb-20">
                     <TouchableOpacity
-                        className="bg-blue-500 p-4 rounded-full items-center justify-center"
+                        className="bg-blue-500 p-4 rounded-full items-center justify-center shadow-md"
                         style={{ width: 60, height: 60 }}
                         onPress={handleSubmit}
                     >

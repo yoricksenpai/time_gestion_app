@@ -5,34 +5,34 @@ const { width } = Dimensions.get('window');
 const TAB_BAR_WIDTH = width * 0.7; // 70% de la largeur de l'écran
 const TAB_BAR_HEIGHT = 60;
 
-export const styles = StyleSheet.create({
-        container: {
-            position: 'absolute',
-            bottom: 25,
-            left: 20,
-            right: 20,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            backgroundColor: 'white',
-            borderRadius: 30,
-            height: 60,
-            paddingHorizontal: 20,
-            shadowColor: "#000",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 54,
+export const createStyles = (fontsLoaded) => StyleSheet.create({
+    container: {
+        position: 'absolute',
+        bottom: 25,
+        left: 20,
+        right: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        borderRadius: 30,
+        height: 60,
+        paddingHorizontal: 20,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
         },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 54,
+    },
     tabItem: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    swipeIndicator: { // Ajouté
+    swipeIndicator: {
         width: 40,
         height: 5,
         backgroundColor: 'gray',
@@ -51,16 +51,15 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-
     iconWrapper: {
         zIndex: 1,
     },
     label: {
         fontSize: 12,
         color: 'gray',
-        marginTop:-25
+        marginTop: -25,
+        fontFamily: fontsLoaded ? 'poppins' : 'System',
     },
-
     circleBackground: {
         position: 'absolute',
         bottom: 14,
