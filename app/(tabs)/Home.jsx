@@ -184,6 +184,7 @@ const Home = () => {
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: false }
         )}
+                showsVerticalScrollIndicator={false} // Ajoutez cette ligne pour cacher la barre de défilement
       >
         <BentoGrid>
           {tasks.map((task) => (
