@@ -1,13 +1,14 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-
+import authMiddleware from '../middlewares/auth.js';
 const router = express.Router();
 
+// Register and Login
 router.post('/register', async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = new User({ email, password });
+        const { email, password,username } = req.body;
+        const user = new User({ email, password, username });
         await user.save();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -28,19 +29,28 @@ router.post('/login', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
-router.get('/me', async (req, res) => {
+
+// Log out
+router.post('/logout', (req, res) => {
+    res.cookie('token', '').json('ok');
+})
+
+
+// Research the existences of a user
+router.get('/me/:userId', async (req, res) => {
     try {
-        // Assurez-vous d'avoir un middleware d'authentification pour vérifier le token
-        const userId = req.user.id; // Supposons que le middleware d'auth ajoute l'utilisateur à req
+        const userId = req.params.userId;
         const user = await User.findById(userId).select('-password');
         if (!user) {
             return res.status(404).json({ error: 'Utilisateur non trouvé' });
         }
-        res.json(user);
+        res.json({ email: user.email, username: user.username });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
+// Delete user
 router.delete('/delete_user/:id', async(req, res)=>{
     try{
         const userId = req.params.id;
@@ -55,6 +65,7 @@ router.delete('/delete_user/:id', async(req, res)=>{
     }
 })
 
+// Update username
 router.put('/update', async (req, res) => {
     try {
         const userId = req.user.id; // Encore une fois, supposons un middleware d'auth
@@ -71,4 +82,6 @@ router.put('/update', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+
 export default router;

@@ -1,5 +1,18 @@
 import {API_BASE_URL} from "../constants/api";
 
+/**
+ * This function creates a new activity.
+ *
+ * @param {string} name - The name of the activity.
+ * @param {string} description - The description of the activity.
+ * @param {string} nature - The nature of the activity.
+ * @param {boolean} allDay - Whether the activity is all day or not.
+ * @param {Date} endDate - The end date of the activity.
+ * @param {Date} creationDate - The creation date of the activity.
+ * @param {Date} reminderTime - The reminder time of the activity.
+ * @return {Promise<Object>} The created activity object.
+ * @throws {Error} If there is an error creating the activity.
+ */
 export const createActivity = async(name, description, nature, allDay, endDate, creationDate, reminderTime) => {
     try{
         console.log(`Attempting to create Activity: ${name}`)
@@ -35,6 +48,12 @@ export const createActivity = async(name, description, nature, allDay, endDate, 
         throw error;
     }
 }
+/**
+ * This function fetches all activities from the server.
+ *
+ * @return {Promise<Array>} An array of activity objects.
+ * @throws {Error} If there is an error fetching the activities.
+ */
 export const getActivities = async () => {
     try {
         const response = await fetch(`${API_BASE_URL}/activity/show_activity`, {
@@ -55,6 +74,13 @@ export const getActivities = async () => {
         throw error;
     }
 };
+/**
+ * This function deletes an activity from the server.
+ *
+ * @param {string} id - The ID of the activity to be deleted.
+ * @return {Promise<Object>} The response from the server.
+ * @throws {Error} If there is an error deleting the activity.
+ */
 export const deleteActivity = async (id) => {
     try {
         console.log(`Attempting to delete Activity with ID: ${id}`);
@@ -77,6 +103,22 @@ export const deleteActivity = async (id) => {
         throw error;
     }
 };
+/**
+ * This function updates an activity on the server.
+ *
+ * @param {string} id - The ID of the activity to be updated.
+ * @param {Object} updatedData - An object containing the updated fields of the activity.
+ * @property {string} updatedData.name - The updated name of the activity.
+ * @property {string} updatedData.description - The updated description of the activity.
+ * @property {string} updatedData.nature - The updated nature of the activity.
+ * @property {boolean} updatedData.allDay - The updated allDay property of the activity.
+ * @property {Date} updatedData.endDate - The updated endDate of the activity.
+ * @property {Date} updatedData.creationDate - The updated creationDate of the activity.
+ * @property {Date} updatedData.reminderTime - The updated reminderTime of the activity.
+ * 
+ * @return {Promise<Object>} The response from the server.
+ * @throws {Error} If there is an error updating the activity.
+ */
 export const updateActivity = async (id, updatedData) => {
     try {
         console.log(`Attempting to update Activity with ID: ${id}`);
@@ -97,6 +139,33 @@ export const updateActivity = async (id, updatedData) => {
         return data;
     } catch (error) {
         console.error('Error updating activity:', error);
+        throw error;
+    }
+};
+
+/**
+ * This function fetches all activities from the server.
+ *
+ * @return {Promise<Array>} An array of all activity objects.
+ * @throws {Error} If there is an error fetching the activities.
+ */
+export const getAllActivities = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/activity/all_activities`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const activities = await response.json();
+        return activities;
+    } catch (error) {
+        console.error('Error fetching activities:', error);
         throw error;
     }
 };

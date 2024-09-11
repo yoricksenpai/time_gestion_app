@@ -19,13 +19,14 @@ const Connection = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
+    username:"",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const submit = async () => {
     setIsSubmitting(true);
     try {
-      const result = await loginUser(form.email, form.password);
+      const result = await loginUser(form.email, form.password, form.username);
       // Utilisez la fonction login du contexte
       await login({
         token: result.token,
@@ -65,7 +66,14 @@ const Connection = () => {
               handleChangeText={(e) => setForm({ ...form, password: e })}
               otherStyles='mt-4'
               secureTextEntry
-          />
+        />
+        <FormField
+          title="Nom d'utilisateur"
+          value={form.username}
+          handleChangeText={(e) => setForm({ ...form, username: e })}
+          otherStyles="mt-4"
+          keyboardType={"text"} />
+        
           <StyledView className='flex-row justify-start w-full pt-2'>
             <StyledLink
                 href='/resetPassword'

@@ -33,6 +33,14 @@ router.get('/show_activity', async (req, res) => {
         res.status(500).json({error: error.message});
     }
 });
+router.get('/all_activities', async (req, res) => {
+    try {
+        const activities = await Activity.find().sort({ creationDate: -1 });
+        res.status(200).json(activities);
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
+});
 router.delete('/delete_activity/:id', async(req, res) =>{
     try{
         const activityId = req.params.id;

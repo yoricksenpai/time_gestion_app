@@ -30,10 +30,11 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
     };
 
-    const logout = async () => {
-        await AsyncStorage.removeItem('user');
-        setUser(null);
-    };
+const logout = async () => {
+  await AsyncStorage.removeItem('user');
+  await AsyncStorage.removeItem('token'); // Assurez-vous de supprimer le token également
+  setUser(null);
+};
 
     return (
         <AuthContext.Provider value={{ user, login, logout, isLoading }}>

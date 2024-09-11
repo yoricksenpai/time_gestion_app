@@ -26,6 +26,7 @@ const Inscription = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    username: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
@@ -50,7 +51,7 @@ const Inscription = () => {
     }
     setIsSubmitting(true);
     try {
-      const result = await registerUser(form.email, form.password);
+      const result = await registerUser(form.email, form.password, form.username);
       alert("Inscription réussie");
       navigation.navigate('sign-in');
     } catch (error) {
@@ -100,6 +101,13 @@ const Inscription = () => {
             }}
             secureTextEntry
           />
+
+           <FormField
+          title="Nom d'utilisateur"
+          value={form.username}
+          handleChangeText={(e) => setForm({ ...form, username: e })}
+          otherStyles="mt-4"
+          keyboardType={"text"} />
 
           <CustomButton
             title='Inscription'

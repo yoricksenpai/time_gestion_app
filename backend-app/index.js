@@ -12,8 +12,13 @@ connectDB().then(r => 'Login to the  DB was successful');
 
 // CORS Configuration
 const corsOptions = {
+    /**
+     * CORS origin function
+     * @param {string} origin - The value of the Origin header
+     * @param {function} callback - The callback function to be called with the result
+     */
     origin: function (origin, callback) {
-        const allowedOrigins = ['http://localhost:5000', 'http://localhost:19006', 'exp://192.168.1.100:19000'];
+        const allowedOrigins = ['http://localhost:19006','http://localhost:8081', 'exp://192.168.1.100:19000', 'exp://192.168.1.148:8081'];
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
