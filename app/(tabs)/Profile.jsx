@@ -1,15 +1,12 @@
-    // const [fontsLoaded] = useFonts();
-
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from '@/hooks/useFonts';
-import { AuthContext } from '@/contexts/AuthContext';
-import * as SplashScreen from "expo-splash-screen";
 import { human, systemWeights } from 'react-native-typography'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
-import {getUserInfo, logoutUser, updateUser, deleteUser, updateUserInfo} from "../../api/auth";
+import { getUserInfo, logoutUser, updateUserInfo } from "../../api/auth";
+import { useAuth } from "../../contexts/AuthContext";
 
 /**
  * Renders a progress bar component.
@@ -124,55 +121,52 @@ const Goal = ({ title, description, progress, total }) => (
  */
 const Profile = () => {
 
-  const { user, logout } = useContext(AuthContext);
+const { user, logout } = useAuth();
   const [fontsLoaded] = useFonts();
   const [userInfo, setUserInfo] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);  // Add this line
   const router = useRouter();
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (fontsLoaded) {
-        await SplashScreen.hideAsync();
+useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/(auth)/sign-in');
+    }
+  }, [user, loading]);
+
+
+
+ useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (user) {
+        try {
+          const info = await getUserInfo();
+          setUserInfo(info);
+        } catch (err) {
+          setError(err.message || 'Failed to fetch user info');
+          console.error('Error fetching user info:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
       }
-      await fetchUserInfo();
     };
-    loadData();
-  }, [fontsLoaded]);
 
-  const fetchUserInfo = async () => {
-    try {
-      setLoading(true);
-      if (!user || !user._id) {
-        throw new Error('User not authenticated');
-      }
-      const info = await getUserInfo(user._id);
-      setUserInfo(info);
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch user info');
-      console.error('Error fetching user info:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchUserInfo();
+  }, [user]);
 
-  const handleUpdateUser = async (updateData) => {
-    try {
-      setLoading(true);
-      if (!user || !user._id) {
-        throw new Error('User not authenticated');
-      }
-      const updatedUser = await updateUserInfo(user._id, updateData);
-      setUserInfo(updatedUser);
-    } catch (err) {
-      setError("Failed to update user info");
-      console.error("Error updating user info:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text>{error}</Text>;
+  }
+
+  if (!user) {
+    return <Text>Please log in to view your profile.</Text>;
+  }
 
   const handleLogout = async () => {
     try {

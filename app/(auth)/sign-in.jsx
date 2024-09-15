@@ -1,100 +1,109 @@
-import { View, Text, Image } from "react-native";
-import React, {useContext, useState} from "react";
+import React, { useState } from "react";
+import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { styled } from "nativewind";
+import { Link, router } from "expo-router";
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton2";
-import {Link, router, useNavigation} from "expo-router";
-import { styled } from "nativewind";
-import {  loginUser } from '../../api/auth';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { TamaguiProvider } from 'tamagui';
+import tamaguiConfig from '../../tamagui.config';
+
 const StyledSafeAreaView = styled(SafeAreaView);
+const StyledScrollView = styled(ScrollView);
 const StyledView = styled(View);
 const StyledImage = styled(Image);
 const StyledText = styled(Text);
-const StyledLink = styled(Link);
+const StyledTouchableOpacity = styled(TouchableOpacity);
 
-const Connection = () => {
-  const { login } = useContext(AuthContext);
+const SignIn = () => {
+  const { login } = useAuth();
   const [form, setForm] = useState({
     email: "",
     password: "",
-    username:"",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleInputChange = (field, value) => {
+    setForm(prevForm => ({
+      ...prevForm,
+      [field]: value
+    }));
+  };
+
   const submit = async () => {
+    if (!form.email || !form.password) {
+      alert("Veuillez remplir tous les champs");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const result = await loginUser(form.email, form.password, form.username);
-      // Utilisez la fonction login du contexte
-      await login({
-        token: result.token,
-        // Ajoutez ici d'autres informations sur l'utilisateur si nécessaire
-      });
+      await login(form.email, form.password);
       router.replace('/(tabs)/Home');
     } catch (error) {
-      alert("Erreur de connexion");
+      console.error(error);
+      alert("Erreur de connexion: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
+
   return (
-      <StyledSafeAreaView className='bg-white flex-1 justify-center w-full'>
-        <StyledView className='w-full mx-auto justify-center items-center px-4 my-4'>
+    <TamaguiProvider config={tamaguiConfig}>
+    <StyledSafeAreaView className="flex-1 bg-white">
+      <StyledScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <StyledView className="flex-1 justify-center items-center px-6">
           <StyledImage
-              source={images.logo}
-              resizeMode='contain'
-              alt='Timezen Logo'
+            source={images.logo}
+            resizeMode="contain"
+            className="w-32 h-32 mb-6"
           />
-          <StyledText style={{fontFamily:'poppinsBold'}} className='text-2xl text-black  mt-4'>
-            <StyledText >Timezen</StyledText>
-          </StyledText>
-          <StyledText className='text-lg text-black font-poppins mt-2'>
+          <StyledText className="text-3xl font-bold mb-2">Timezen</StyledText>
+          <StyledText className="text-lg text-gray-600 mb-8">
             Regain your productivity track
           </StyledText>
+
           <FormField
-              title='Email*'
-              value={form.email}
-              handleChangeText={(e) => setForm({ ...form, email: e })}
-              otherStyles='mt-4'
-              keyboardType='email-address'
+            title="Email"
+            value={form.email}
+            handleChangeText={(text) => handleInputChange('email', text)}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
+
           <FormField
-              title='Mot de passe*'
-              value={form.password}
-              handleChangeText={(e) => setForm({ ...form, password: e })}
-              otherStyles='mt-4'
-              secureTextEntry
-        />
-        <FormField
-          title="Nom d'utilisateur"
-          value={form.username}
-          handleChangeText={(e) => setForm({ ...form, username: e })}
-          otherStyles="mt-4"
-          keyboardType={"text"} />
-        
-          <StyledView className='flex-row justify-start w-full pt-2'>
-            <StyledLink
-                href='/resetPassword'
-                className='text-primary underline mt-1'
-            >
-              <StyledText className='font-poppins'>Mot de passe oublié?</StyledText>
-            </StyledLink>
+            title="Mot de passe"
+            value={form.password}
+            handleChangeText={(text) => handleInputChange('password', text)}
+            secureTextEntry
+          />
+
+          <StyledTouchableOpacity 
+            className="self-end mb-4"
+            onPress={() => router.push("/resetPassword")}
+          >
+            <StyledText className="text-blue-500">Mot de passe oublié?</StyledText>
+          </StyledTouchableOpacity>
+
+          <CustomButton
+            title="Connexion"
+            handlePress={submit}
+            isLoading={isSubmitting}
+          />
+
+          <StyledView className="flex-row justify-center items-center mt-6">
+            <StyledText className="text-gray-600">Pas encore de compte? </StyledText>
+            <StyledTouchableOpacity onPress={() => router.push("/sign-up")}>
+              <StyledText className="text-blue-500 font-bold">S'inscrire</StyledText>
+            </StyledTouchableOpacity>
           </StyledView>
-          <CustomButton
-              title='Connexion'
-              handlePress={submit}
-              isLoading={isSubmitting}
-          />
-          <CustomButton
-              title='Inscription'
-              handlePress={() => router.push("/sign-up")}
-              isLoading={isSubmitting}
-          />
         </StyledView>
+      </StyledScrollView>
       </StyledSafeAreaView>
+      </TamaguiProvider>
   );
 };
 
-export default Connection;
+export default SignIn;

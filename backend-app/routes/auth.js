@@ -23,12 +23,20 @@ router.post('/login', async (req, res) => {
         if (!user || !(await user.comparePassword(password))) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token, redirectTo: '/home' });
+        const token = jwt.sign(
+            { 
+                userId: user._id,
+                email: user.email,
+                username: user.username
+            }, 
+            process.env.JWT_SECRET,
+        );
+        res.json({ token, user: { id: user._id, email: user.email, username: user.username } });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
+
 
 // Log out
 router.post('/logout', (req, res) => {
@@ -36,18 +44,17 @@ router.post('/logout', (req, res) => {
 })
 
 
-// Research the existences of a user
-router.get('/me/:userId', async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const user = await User.findById(userId).select('-password');
-        if (!user) {
-            return res.status(404).json({ error: 'Utilisateur non trouvé' });
-        }
-        res.json({ email: user.email, username: user.username });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+router.get('/me', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user info:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Delete user

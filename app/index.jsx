@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { Text, View } from 'react-native';
+import { Text, View, Image } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { images } from '../constants';
-import { Image } from 'react-native';
-import CustomButton2 from '../components/CustomButton2';
+import { TamaguiProvider } from 'tamagui';
+import tamaguiConfig from '../tamagui.config';
+import CustomButton from '../components/CustomButton2';
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback } from 'react';
 import { useFonts } from '../hooks/useFonts';
@@ -26,8 +27,9 @@ export default function App() {
     }
 
     return (
-        <View className='flex-1 items-center bg-slate-200 dark:bg-slate-800 justify-center' onLayout={onLayoutRootView}>
-            <SafeAreaView className="text-center">
+        <TamaguiProvider config={tamaguiConfig}>
+            <View className='flex-1 items-center bg-slate-200 dark:bg-slate-800 justify-center' onLayout={onLayoutRootView}>
+                <SafeAreaView className="text-center">
                 <View>
                     <View className="flex-1 items-center bg-slate-200 dark:bg-slate-800 justify-center">
                         <Image
@@ -44,12 +46,12 @@ export default function App() {
                             </Text>
                         </View>
 
-                        <CustomButton2
+                        <CustomButton
                             title="Get Started"
                             handlePress={() => router.push('/sign-up')}
                         />
 
-                        <CustomButton2
+                        <CustomButton
                             title="Connect you to Timezen"
                             handlePress={() => router.push('/sign-in')}
                         />
@@ -59,7 +61,8 @@ export default function App() {
 
                 <StatusBar backgroundColor='#fff' style="light" />
 
-            </SafeAreaView>
-        </View>
+                </SafeAreaView>
+            </View>
+        </TamaguiProvider>
     );
 }

@@ -18,7 +18,7 @@ const corsOptions = {
      * @param {function} callback - The callback function to be called with the result
      */
     origin: function (origin, callback) {
-        const allowedOrigins = ['http://localhost:19006','http://localhost:8081', 'exp://192.168.1.100:19000', 'exp://192.168.1.148:8081'];
+        const allowedOrigins = ['http://localhost:19006','http://localhost:8081', 'exp://192.168.1.100:19000', 'exp://192.168.1.146:8081'];
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
@@ -32,7 +32,7 @@ const corsOptions = {
 };
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes

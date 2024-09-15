@@ -6,7 +6,7 @@ import {router, useRouter} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { human, systemWeights } from 'react-native-typography'
 import { cn } from "../../utils/cn"; // Assurez-vous que le chemin est correct
-
+import { useAuth } from '../../contexts/AuthContext';
 //ajoute le blur au header la prochaine fois 
 
 const BentoGrid = ({ className, children }) => {
@@ -48,10 +48,10 @@ const BentoGridItem = ({ className, title, description, isSelected, isMultiSelec
 
 
 const Home = () => {
-  const router2 = useRouter();
+  const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
+  const { user, loading, logout } = useAuth(); // Utilisez le hook useAuth
 
-  const [isLoading, setIsLoading] = useState(true);
   const [fontsLoaded] = useFonts({
     Poppins: require('../../assets/fonts/Poppins-Regular.ttf'),
     PoppinsBold: require('../../assets/fonts/Poppins-Bold.ttf'),
@@ -60,29 +60,18 @@ const Home = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [isMultiSelect, setIsMultiSelect] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
-  
 
   useEffect(() => {
-    checkAuth().then(r => "is a User");
-  }, []);
-
-  const checkAuth = async () => {
-    const userToken = await AsyncStorage.getItem('userToken');
-    console.log(userToken)
-    if (!userToken) {
+    if (!loading && !user) {
       router.replace('/(auth)/sign-in');
-    } else {
-      setIsLoading(false);
     }
-  };
+  }, [user, loading]);
 
   useEffect(() => {
     if (selectedItems.length === 0) {
       setIsMultiSelect(false);
     }
   }, [selectedItems]);
-
-  
 
   const handlePress = (title) => {
     if (isMultiSelect) {
@@ -108,6 +97,8 @@ const Home = () => {
     setSelectedItems([]);
   };
 
+
+
   const headerHeight = 150;
   const tabs = useMemo(() => ["Tasks", "Events", "Reminders"], []);
   const tasks = useMemo(() => [
@@ -131,7 +122,7 @@ const Home = () => {
     }),
   }), [scrollY, headerHeight]);
 
-  if (isLoading || !fontsLoaded) {
+  if (loading || !fontsLoaded) {
     return <View><Text>Loading...</Text></View>;
   }
 
@@ -151,7 +142,7 @@ const Home = () => {
         ]}
       >
         <TextInput
-          className="bg-white rounded-lg p-4 mb-2 mt-2 font-poppins border border-gray-300 focus:ring-blue-500 focus:border-blue-500  "
+          className="bg-white rounded-lg p-4 mb-2 font-poppins border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
           placeholder="Type here to search events"
           placeholderTextColor="#999"
         />
@@ -184,7 +175,7 @@ const Home = () => {
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: false }
         )}
-                showsVerticalScrollIndicator={false} // Ajoutez cette ligne pour cacher la barre de défilement
+        showsVerticalScrollIndicator={false}
       >
         <BentoGrid>
           {tasks.map((task) => (
@@ -208,7 +199,7 @@ const Home = () => {
                 if (isMultiSelect) {
                   handleClearSelection();
                 } else {
-                  router2.push('/Create');
+                  router.push('/Create');
                 }
               }}
             >
