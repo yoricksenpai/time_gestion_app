@@ -47,24 +47,26 @@ export const createStyles = (fontsLoaded) => StyleSheet.create({
     },
     iconContainer: {
         width: 50,
-        height: 50,
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        height: 50, // Match the height and width to maintain consistency
+        justifyContent: 'center', // Ensure centering
+        alignItems: 'center', // Ensure centering
     },
     iconWrapper: {
         zIndex: 1,
+        justifyContent: 'center', // Make sure icon is centered
+        alignItems: 'center', // Make sure icon is centered
     },
     label: {
         fontSize: 12,
         color: 'gray',
-        marginTop: -25,
+        marginTop: -15, // Reduce this to avoid too much negative margin
         fontFamily: fontsLoaded ? 'poppins' : 'System',
     },
     circleBackground: {
         position: 'absolute',
-        bottom: 14,
-        width: 45,
-        height: 45,
+        bottom: 0,
+        width: 50, // Match width to iconContainer to avoid shifting
+        height: 50, // Match height to iconContainer to avoid shifting
         borderRadius: 25,
         backgroundColor: '#3498db',
     },

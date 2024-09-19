@@ -1,31 +1,35 @@
 import {API_BASE_URL} from "../constants/api";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 /**
  * This function creates a new activity.
  *
- * @param {string} name - The name of the activity.
- * @param {string} description - The description of the activity.
- * @param {string} nature - The nature of the activity.
- * @param {boolean} allDay - Whether the activity is all day or not.
- * @param {Date} endDate - The end date of the activity.
- * @param {Date} creationDate - The creation date of the activity.
- * @param {Date} reminderTime - The reminder time of the activity.
+ * @param {string} activityData.name - The name of the activity.
+ * @param {string} activityData.description - The description of the activity.
+ * @param {string} activityData.nature - The nature of the activity.
+ * @param {boolean} activityData.allDay - Whether the activity is all day or not.
+ * @param {Date} activityData.endDate - The end date of the activity.
+ * @param {Date} activityData.reminderTime - The reminder time of the activity.
  * @return {Promise<Object>} The created activity object.
  * @throws {Error} If there is an error creating the activity.
  */
-export const createActivity = async(name, description, nature, allDay, endDate, creationDate, reminderTime) => {
+export const createActivity = async(activityData) => {
     try{
-        console.log(`Attempting to create Activity: ${name}`)
+        console.log(`Attempting to create Activity: ${activityData.name}`)
         console.log(`API URL: ${API_BASE_URL}/activity/create_activity`);
+        const token = await AsyncStorage.getItem('token');
+        console.log('Token récupéré :', token ? 'Présent' : 'Absent');
 
-        const response = await fetch(`${API_BASE_URL}/activity/create_activity`,{
-            method:"POST",
-            headers:{
-                'Content-Type':'application/json',
-
+        if (!token) {
+            throw new Error('No token found');
+        }
+        console.log('Données à envoyer:', JSON.stringify(activityData, null, 2));
+        const response = await fetch(`${API_BASE_URL}/activity/create_activity`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({name, description, nature,allDay, endDate, creationDate, reminderTime})
-
+            body: JSON.stringify(activityData)
         });
         console.log(`Response status: ${response.status}`);
         const textResponse = await response.text();
@@ -54,9 +58,9 @@ export const createActivity = async(name, description, nature, allDay, endDate, 
  * @return {Promise<Array>} An array of activity objects.
  * @throws {Error} If there is an error fetching the activities.
  */
-export const getActivities = async () => {
+export const getActivity = async (id) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/activity/show_activity`, {
+        const response = await fetch(`${API_BASE_URL}/activity/show_activity/${id}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -81,14 +85,15 @@ export const getActivities = async () => {
  * @return {Promise<Object>} The response from the server.
  * @throws {Error} If there is an error deleting the activity.
  */
-export const deleteActivity = async (id) => {
+export const deleteActivities = async (activityIds) => {
     try {
-        console.log(`Attempting to delete Activity with ID: ${id}`);
-        const response = await fetch(`${API_BASE_URL}/activity/delete_activity/${id}`, {
+        console.log(`Attempting to delete Activities with IDs:`, activityIds);
+        const response = await fetch(`${API_BASE_URL}/activity/delete_activities`, {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json',
             },
+            body: JSON.stringify({ activityIds }),
         });
 
         if (!response.ok) {
@@ -99,7 +104,7 @@ export const deleteActivity = async (id) => {
         console.log('Delete response:', data);
         return data;
     } catch (error) {
-        console.error('Error deleting activity:', error);
+        console.error('Error deleting activities:', error);
         throw error;
     }
 };
@@ -113,7 +118,6 @@ export const deleteActivity = async (id) => {
  * @property {string} updatedData.nature - The updated nature of the activity.
  * @property {boolean} updatedData.allDay - The updated allDay property of the activity.
  * @property {Date} updatedData.endDate - The updated endDate of the activity.
- * @property {Date} updatedData.creationDate - The updated creationDate of the activity.
  * @property {Date} updatedData.reminderTime - The updated reminderTime of the activity.
  * 
  * @return {Promise<Object>} The response from the server.
@@ -151,10 +155,14 @@ export const updateActivity = async (id, updatedData) => {
  */
 export const getAllActivities = async () => {
     try {
+        const token = await AsyncStorage.getItem('token');
+        console.log('Token récupéré :', token ? 'Présent' : 'Absent');
+
         const response = await fetch(`${API_BASE_URL}/activity/all_activities`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
         });
 

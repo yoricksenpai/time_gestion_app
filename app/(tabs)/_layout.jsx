@@ -32,7 +32,7 @@ const TabsLayout = () => {
             <Tabs.Screen name='Home' options={{ title: 'Home'}} />
             <Tabs.Screen name='Profile' options={{ title: 'Profile' }} />
             <Tabs.Screen name='Calendar' options={{ title: 'Calendar' }} />
-            <Tabs.Screen name='Create' options={{ title: 'Create' }} />
+            
         </Tabs>
     );
 };

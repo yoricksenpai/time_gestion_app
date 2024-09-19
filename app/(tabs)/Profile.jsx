@@ -125,7 +125,7 @@ const { user, logout } = useAuth();
   const [fontsLoaded] = useFonts();
   const [userInfo, setUserInfo] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);  // Add this line
+  const [loading, setIsLoading] = useState(false);  // Add this line
   const router = useRouter();
 
 useEffect(() => {

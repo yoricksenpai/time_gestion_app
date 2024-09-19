@@ -9,7 +9,7 @@ const Layout = () => {
             <Stack screenOptions={{animation : 'flip'}}>
                 <Stack.Screen name="index" options={{ headerShown: false, animation : 'flip' }} />
                 <Stack.Screen name="(tabs)" options={{ headerShown:false, animation : 'flip' }} />
-                <Stack.Screen name='(auth)' options={{ headerShown: true,animation : 'flip' }} />
+                <Stack.Screen name='(auth)' options={{ headerShown: false,animation : 'flip' }} />
             </Stack>
         </AuthProvider>
         </GestureHandlerRootView>

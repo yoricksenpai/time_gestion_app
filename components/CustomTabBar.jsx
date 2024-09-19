@@ -17,8 +17,17 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
     return (
         <View style={styles.container}>
             {state.routes.map((route, index) => {
+                // Check if the route is 'Update' and skip rendering for that route
+                if (route.name === 'Update' || route.name === 'Create') {
+                    return null;
+                }
+
                 const { options } = descriptors[route.key];
-                const label = options.tabBarLabel !== undefined ? options.tabBarLabel : options.title !== undefined ? options.title : route.name;
+                const label = options.tabBarLabel !== undefined 
+                    ? options.tabBarLabel 
+                    : options.title !== undefined 
+                    ? options.title 
+                    : route.name;
                 const isFocused = state.index === index;
 
                 const onPress = () => {
@@ -40,16 +49,11 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
                     iconName = 'person-outline';
                 } else if (route.name === 'Calendar') {
                     iconName = 'calendar-outline';
-                } else if (route.name === 'Create') {
-                    iconName = 'add-circle-outline';
                 }
 
                 const animatedIconStyle = useAnimatedStyle(() => {
                     return {
-                        color: withSpring(
-                            isFocused ? 'white' : 'gray',
-                            springConfig
-                        ),
+                        color: withSpring(isFocused ? 'white' : 'gray', springConfig),
                     };
                 });
 
@@ -93,5 +97,6 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         </View>
     );
 };
+
 
 export default CustomTabBar;

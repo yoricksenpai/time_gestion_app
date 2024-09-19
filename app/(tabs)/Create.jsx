@@ -1,13 +1,13 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { Platform, SafeAreaView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
-import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
+import Animated, { useAnimatedScrollHandler, useSharedValue, FadeIn, FadeOut } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { createActivity } from '../../api/activity';
 
 const Create = () => {
     const [name, setName] = useState('');
@@ -22,11 +22,44 @@ const Create = () => {
     const [showReminderTimePicker, setShowReminderTimePicker] = useState(false);
     const [showEndDatePicker, setShowEndDatePicker] = useState(false);
     const [showEndTimePicker, setShowEndTimePicker] = useState(false);
-
+    const [notification, setNotification] = useState(null);
     const router = useRouter();
     const scrollY = useSharedValue(0);
-    const lastScrollY = useSharedValue(0);
+    
+    const scrollHandler = useAnimatedScrollHandler({
+        onScroll: (event) => {
+            scrollY.value = event.contentOffset.y;
+        },
+    });
 
+    const [fontsLoaded] = useFonts({
+        poppinsBold: require('../../assets/fonts/Poppins-Bold.ttf'),
+        poppins: require('../../assets/fonts/Poppins-Medium.ttf'),
+    });
+
+    if (!fontsLoaded) {
+        return null;
+    }
+   const showNotification = (message, type = 'success') => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 3000);
+    };
+
+    const handleCreateActivity = async (activityData) => {
+        try {
+            const response = await createActivity(activityData);
+            console.log('Activity created:', response);
+            showNotification('Activity created successfully!');
+             // Navigate back to Home and pass the new activity data
+        router.push({
+            pathname: '/Home',
+            params: { newActivity: JSON.stringify(response) }
+        });
+        } catch (error) {
+            console.error('Error creating activity:', error);
+            showNotification('Failed to create activity. Please try again.', 'error');
+        }
+    };
     const handleSubmit = () => {
         const combinedReminderTime = new Date(
             reminderDate.getFullYear(),
@@ -45,18 +78,18 @@ const Create = () => {
         );
 
         const activityData = {
-            name,
-            description,
-            nature,
-            creationDate: new Date(), // Using current date as creation date
-            ...(nature === 'Reminder' && { reminderTime: combinedReminderTime }),
-            ...((nature === 'Event' || nature === 'Task') && { endDate: combinedEndDate }),
+            name: name.trim(),
+            description:description.trim(),
+            nature: nature,
+            ...(nature === 'Reminder' && { reminderTime: combinedReminderTime.toISOString() }),
+            ...((nature === 'Event' || nature === 'Task') && { endDate: combinedEndDate.toISOString() }),
             ...(nature === 'Event' && { allDay })
         };
 
         console.log(activityData);
+        handleCreateActivity(activityData);
         // Here you would typically send this data to your API
-        router.back();
+        router.push('/Home')
     };
 
     const onChangeDate = (event, selectedDate, dateType) => {
@@ -101,37 +134,42 @@ const Create = () => {
         );
     };
 
-    const [fontsLoaded] = useFonts({
-        poppinsBold: require('../../assets/fonts/Poppins-Bold.ttf'),
-        poppins: require('../../assets/fonts/Poppins-Medium.ttf'),
-    });
-
-    const onLayoutRootView = useCallback(async () => {
-        if (fontsLoaded) {
-            await SplashScreen.hideAsync();
-        }
-    }, [fontsLoaded]);
-
-    if (!fontsLoaded) {
-        return null;
-    }
-
-    const scrollHandler = useAnimatedScrollHandler({
-        onScroll: (event) => {
-            scrollY.value = event.contentOffset.y;
-        },
-    });
-
-     return (
+    return (
         <SafeAreaView className="flex-1 bg-gray-50">
+
             <Animated.ScrollView
                 className="p-5"
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
             >
+
                 <TouchableOpacity onPress={() => router.back()} className="mb-4">
                     <Ionicons name="arrow-back" size={24} color="#3B82F6" />
                 </TouchableOpacity>
+
+                                        {notification && (
+                <Animated.View 
+                    entering={FadeIn}
+                    exiting={FadeOut}
+                    className={`absolute bottom-10 left-5 right-5 p-4 rounded-lg ${
+                        notification.type === 'error' ? 'bg-red-500' : 'bg-green-500'
+                    }`}
+                    style={{
+                        shadowColor: "#000",
+                        shadowOffset: {
+                            width: 0,
+                            height: 2,
+                        },
+                        shadowOpacity: 0.25,
+                        shadowRadius: 3.84,
+                        elevation: 5,
+                    }}
+                >
+                    <Text className="text-white font-poppins text-center text-lg">
+                        {notification.message}
+                    </Text>
+                </Animated.View>
+            )}
                  <LinearGradient
                      colors={['#BFDBFE', '#A5F3FC']}
                      className="flex-1 justify-center items-center rounded-2xl shadow-lg mb-1"
@@ -252,6 +290,30 @@ const Create = () => {
                 </View>
                 <View className="h-10"/>
             </Animated.ScrollView>
+
+            {notification && (
+                <Animated.View 
+                    entering={FadeIn}
+                    exiting={FadeOut}
+                    className={`absolute bottom-10 left-5 right-5 p-4 rounded-lg ${
+                        notification.type === 'error' ? 'bg-red-500' : 'bg-green-500'
+                    }`}
+                    style={{
+                        shadowColor: "#000",
+                        shadowOffset: {
+                            width: 0,
+                            height: 2,
+                        },
+                        shadowOpacity: 0.25,
+                        shadowRadius: 3.84,
+                        elevation: 5,
+                    }}
+                >
+                    <Text className="text-white font-poppins text-center text-lg">
+                        {notification.message}
+                    </Text>
+                </Animated.View>
+            )}
         </SafeAreaView>
     );
 };
