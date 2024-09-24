@@ -7,7 +7,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { human, systemWeights } from 'react-native-typography'
 import { cn } from "../../utils/cn"; // Ensure the path is correct
 import { useAuth } from '../../contexts/AuthContext';
-import { getAllActivities, deleteActivities } from '../../api/activity';
+import { getAllActivities, deleteActivities, searchActivities  } from '../../api/activity';
+import { debounce } from 'lodash';
+import LoadingBentoGrid from '../../components/LoadingBentoGrid';
 
 const BentoGrid = ({ className, children }) => {
   return (
@@ -46,15 +48,6 @@ const BentoGridItem = ({ className, title, description, isSelected, isMultiSelec
   );
 };
 
-const LoadingBentoGrid = () => {
-  return (
-    <View className="flex-1 justify-center items-center" style={{ minHeight: 300 }}>
-      <ActivityIndicator size="large" color="#0000ff" />
-      <Text className="mt-4 text-blue-600 font-semibold">Chargement des activités...</Text>
-    </View>
-  );
-};
-
 const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -62,7 +55,7 @@ const Home = () => {
   const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
   const params = useLocalSearchParams();
-
+  const [searchTerm, setSearchTerm] = useState('');
   const { user, loading, logout } = useAuth();
 
   const [fontsLoaded] = useFonts({
@@ -90,6 +83,23 @@ const Home = () => {
     }
   }, []);
   
+  const debouncedSearch = useCallback(
+    debounce(async (term) => {
+      if (term.trim() === '') {
+        loadActivities();
+      } else {
+        try {
+          const results = await searchActivities(term);
+          setActivities(results);
+        } catch (error) {
+          console.error('Error during search:', error);
+          Alert.alert("Erreur", "Une erreur s'est produite lors de la recherche.");
+        }
+      }
+    }, 300),
+    []
+  );
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await loadActivities();
@@ -177,6 +187,12 @@ const Home = () => {
     setSelectedItems([]);
   };
 
+  const handleSearch = (text) => {
+    setSearchTerm(text);
+    setIsLoading(true);
+    debouncedSearch(text);
+  };
+
   const headerHeight = 150;
   const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -235,6 +251,60 @@ const Home = () => {
     return <View><Text>Loading...</Text></View>;
   }
 
+  const renderContent = () => {
+    if (isLoading) {
+      return <LoadingBentoGrid />;
+    }
+
+    if (filteredActivities.length === 0) {
+      return (
+        <View className="flex-1 items-center justify-center p-4">
+          <Text style={[human.body, systemWeights.light, { color: '#6B7280' }]} className="text-center font-poppins">
+            {`Il n'y a pas encore de ${tabs[selectedTab].toLowerCase()}`}
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <BentoGrid>
+        {filteredActivities.map((activity) => (
+          <AnimatedBentoGridItem
+            key={activity._id || activity.id}
+            style={{ opacity: fadeAnim }}
+            title={activity.name || activity.title}
+            description={activity.description}
+            isSelected={selectedItems.includes(activity._id || activity.id)}
+            isMultiSelect={isMultiSelect}
+            onPress={() => handlePress(activity._id || activity.id)}
+            onLongPress={() => handleLongPress(activity._id || activity.id)}
+          />
+        ))}
+        <View className="w-[48%] aspect-square mb-4 rounded-xl items-center justify-center">
+          <TouchableOpacity
+            className={cn(
+              "p-5 rounded-full shadow-md",
+              isMultiSelect ? "bg-red-500" : "bg-blue-500"
+            )}
+            onPress={() => {
+              if (isMultiSelect) {
+                if(selectedItems.length > 0){
+                  handleDeleteSelectedItems();
+                } else {
+                  handleClearSelection();
+                }
+              } else {
+                router.push('/Create');
+              }
+            }}
+          >
+            <Ionicons name={isMultiSelect ? (selectedItems.length > 0 ? "trash" : "close") : "add"} size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+      </BentoGrid>
+    );
+  };
+
   return (
     <View className="flex-1 bg-gray-100 p-4">
       <Animated.View
@@ -254,6 +324,8 @@ const Home = () => {
           className="bg-white rounded-lg p-4 mb-2 mt-2 font-poppins border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
           placeholder="Type here to search events"
           placeholderTextColor="#999"
+          value={searchTerm}
+          onChangeText={handleSearch}
         />
         <View className="flex-row justify-between">
           {tabs.map((tab, index) => (
@@ -292,47 +364,7 @@ const Home = () => {
           />
         }
       >
-        <BentoGrid>
-          {isLoading ? (
-            <LoadingBentoGrid />
-          ) : (
-            filteredActivities.map((activity) => (
-              <AnimatedBentoGridItem
-                key={activity._id || activity.id}
-                style={{ opacity: fadeAnim }}
-                title={activity.name || activity.title}
-                description={activity.description}
-                isSelected={selectedItems.includes(activity._id || activity.id)}
-                isMultiSelect={isMultiSelect}
-                onPress={() => handlePress(activity._id || activity.id)}
-                onLongPress={() => handleLongPress(activity._id || activity.id)}
-              />
-            ))
-          )}
-
-          <View className="w-[48%] aspect-square mb-4 rounded-xl items-center justify-center">
-            <TouchableOpacity
-              className={cn(
-                "p-5 rounded-full shadow-md",
-                isMultiSelect ? "bg-red-500" : "bg-blue-500", 
-                isLoading ? "hidden" : "visible"
-              )}
-              onPress={() => {
-                if (isMultiSelect) {
-                  if(selectedItems.length > 0){
-                    handleDeleteSelectedItems();
-                  } else {
-                    handleClearSelection();
-                  }
-                } else {
-                  router.push('/Create');
-                }
-              }}
-            >
-              <Ionicons name={isMultiSelect ? (selectedItems.length > 0 ? "trash" : "close") : "add"} size={24} color="white" />
-            </TouchableOpacity>
-          </View>
-        </BentoGrid>
+        {renderContent()}
         <View className="h-20"></View>
       </Animated.ScrollView>
     </View>

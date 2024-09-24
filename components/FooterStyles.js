@@ -25,7 +25,7 @@ export const createStyles = (fontsLoaded) => StyleSheet.create({
         },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
-        elevation: 54,
+        elevation: 10,
     },
     tabItem: {
         flex: 1,

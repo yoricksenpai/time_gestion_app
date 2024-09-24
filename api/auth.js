@@ -126,3 +126,18 @@ export const deleteUser = async () => {
     throw error;
   }
 };
+export const getUserProfile = async () => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      throw new Error('No token found');
+    }
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Get user profile error:', error);
+    throw error;
+  }
+};

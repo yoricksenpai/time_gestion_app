@@ -78,6 +78,65 @@ export const getActivity = async (id) => {
         throw error;
     }
 };
+
+/**
+ * This function fetches activities within a specific date range from the server.
+ *
+ * @param {Date} startDate - The start date of the range.
+ * @param {Date} endDate - The end date of the range.
+ * @return {Promise<Array>} An array of activity objects within the specified date range.
+ * @throws {Error} If there is an error fetching the activities.
+ */
+export const getActivitiesByDateRange = async (startDate, endDate) => {
+    try {
+        console.log('Dates passées à getActivitiesByDateRange:', { startDate, endDate });
+        
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+            throw new Error('No token found');
+        }
+
+        // Ensure startDate and endDate are valid Date objects
+        if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
+            throw new Error('Invalid date format. startDate and endDate must be Date objects.');
+        }
+
+        const url = `${API_BASE_URL}/activity/activities_by_date_range?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+        console.log('URL de la requête:', url);
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const responseText = await response.text();
+        console.log('Réponse brute du serveur:', responseText);
+
+        if (!responseText) {
+            throw new Error('Empty response from server');
+        }
+
+let activities;
+        try {
+            activities = JSON.parse(responseText);
+            console.log('Activités parsées:', activities);
+        } catch (parseError) {
+            console.error('Erreur lors du parsing de la réponse:', parseError);
+            throw new Error('Invalid JSON response from server');
+        }
+        return activities;
+    } catch (error) {
+        console.error('Error in getActivitiesByDateRange:', error);
+        throw error;
+    }
+};
 /**
  * This function deletes an activity from the server.
  *
@@ -174,6 +233,39 @@ export const getAllActivities = async () => {
         return activities;
     } catch (error) {
         console.error('Error fetching activities:', error);
+        throw error;
+    }
+};
+/**
+ * Cette fonction recherche des activités en fonction d'un terme de recherche.
+ *
+ * @param {string} query - Le terme de recherche.
+ * @return {Promise<Array>} Un tableau d'objets d'activités correspondant à la recherche.
+ * @throws {Error} Si une erreur se produit lors de la recherche des activités.
+ */
+export const searchActivities = async (query) => {
+    try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+            throw new Error('No token found');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/activity/search_activities?query=${encodeURIComponent(query)}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const activities = await response.json();
+        return activities;
+    } catch (error) {
+        console.error('Error searching activities:', error);
         throw error;
     }
 };

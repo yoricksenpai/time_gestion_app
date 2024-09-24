@@ -82,4 +82,58 @@ router.put('/update_activity/:id',  async(req, res) =>{
         res.status(500).json({error:"erreur interne du serveur, contacter le developeur"})
     }
 })
+
+
+router.get('/activities_by_date_range', authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const { startDate, endDate } = req.query;
+        
+        console.log('Requête reçue pour les activités:', { userId, startDate, endDate });
+
+        if (!startDate || !endDate) {
+            throw new Error('startDate and endDate are required');
+        }
+
+        const activities = await Activity.find({
+            user: userId,
+            $or: [
+                { nature: "Event", endDate: { $gte: new Date(startDate), $lte: new Date(endDate) } },
+                { nature: "Task", endDate: { $gte: new Date(startDate), $lte: new Date(endDate) } },
+                { nature: "Reminder", reminderTime: { $gte: new Date(startDate), $lte: new Date(endDate) } }
+            ]
+        }).sort({ creationDate: -1 });
+
+        console.log('Activités trouvées:', activities.length);
+        res.status(200).json(activities);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des activités:', error);
+        res.status(500).json({error: error.message});
+    }
+});
+
+router.get('/search_activities', authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const { query } = req.query;
+
+        if (!query) {
+            return res.status(400).json({ error: "Un terme de recherche est requis" });
+        }
+
+        const activities = await Activity.find({
+            user: userId,
+            $or: [
+                { name: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } },
+                { nature: { $regex: query, $options: 'i' } }
+            ]
+        }).sort({ creationDate: -1 });
+
+        res.status(200).json(activities);
+    } catch (error) {
+        console.error('Erreur lors de la recherche des activités:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 export default router;

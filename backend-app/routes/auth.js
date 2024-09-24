@@ -2,6 +2,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import authMiddleware from '../middlewares/auth.js';
+import calculateUserStats from '../utils/profileCalculations.js';
+import Activity from '../models/Activity.js';
 const router = express.Router();
 
 // Register and Login
@@ -90,5 +92,25 @@ router.put('/update', async (req, res) => {
     }
 });
 
+router.get('/profile', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const activities = await Activity.find({ user: req.user.userId });
+    const stats = calculateUserStats(activities);
+
+    res.json({
+      user,
+      stats,
+      goals: user.goals
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 export default router;

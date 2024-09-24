@@ -1,27 +1,38 @@
-// EventItem.jsx
-
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import styles from '../constants/styles';
 
-const EventItem = ({ event }) => {
+const EventItem = ({ event, onPress }) => {
   const startDate = new Date(event.startDate);
-  const endDate = new Date(event.endDate);
+  const endDate = event.endDate ? new Date(event.endDate) : null;
+  const reminderTime = event.reminderTime ? new Date(event.reminderTime) : null;
 
-  const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        return 'Date invalide';
+    }
+    return date.toLocaleDateString();
+};
 
   return (
-    <TouchableOpacity style={styles.eventItem}>
+    <TouchableOpacity style={styles.eventItem} onPress={() => onPress(event)}>
       <View style={styles.eventHeader}>
-        <Text style={styles.eventTitle}>{event.title}</Text>
-        <Text style={styles.eventDate}>{startDate.toDateString()}</Text>
+        <Text style={styles.eventTitle}>{event.name}</Text>
+        <Text style={styles.eventNature}>{event.nature}</Text>
       </View>
-      <Text style={styles.eventTime}>
-        {formatTime(startDate)} - {formatTime(endDate)}
-      </Text>
-      {event.notes && <Text style={styles.eventNotes}>{event.notes}</Text>}
+      <Text style={styles.eventDate}>Date de fin</Text>
+      {endDate && (
+        <Text style={styles.eventTime}>
+           {formatTime(endDate)}
+        </Text>
+      )}
+      {reminderTime && (
+        <Text style={styles.eventReminder}>
+          Reminder: {formatTime(reminderTime)}
+        </Text>
+      )}
+      {event.description && <Text style={styles.eventNotes}>{event.description}</Text>}
     </TouchableOpacity>
   );
 };

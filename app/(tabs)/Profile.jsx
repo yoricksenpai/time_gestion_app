@@ -5,7 +5,7 @@ import { useFonts } from '@/hooks/useFonts';
 import { human, systemWeights } from 'react-native-typography'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
-import { getUserInfo, logoutUser, updateUserInfo } from "../../api/auth";
+import { getUserInfo, logoutUser, getUserProfile  } from "../../api/auth";
 import { useAuth } from "../../contexts/AuthContext";
 
 /**
@@ -121,52 +121,38 @@ const Goal = ({ title, description, progress, total }) => (
  */
 const Profile = () => {
 
-const { user, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [fontsLoaded] = useFonts();
   const [userInfo, setUserInfo] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setIsLoading] = useState(false);  // Add this line
+  const [loading, setIsLoading] = useState(true);
   const router = useRouter();
+  const [userProfile, setUserProfile] = useState(null);
 
-useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/(auth)/sign-in');
-    }
-  }, [user, loading]);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) {
+        router.replace('/(auth)/sign-in');
+        return;
+      }
 
-
-
- useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (user) {
-        try {
-          const info = await getUserInfo();
-          setUserInfo(info);
-        } catch (err) {
-          setError(err.message || 'Failed to fetch user info');
-          console.error('Error fetching user info:', err);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
+      try {
+        const [info, profile] = await Promise.all([
+          getUserInfo(),
+          getUserProfile()
+        ]);
+        setUserInfo(info);
+        setUserProfile(profile);
+      } catch (err) {
+        setError(err.message || 'Failed to fetch user data');
+        console.error('Error fetching user data:', err);
+      } finally {
         setIsLoading(false);
       }
     };
 
-    fetchUserInfo();
-  }, [user]);
-
-  if (loading) {
-    return <Text>Loading...</Text>;
-  }
-
-  if (error) {
-    return <Text>{error}</Text>;
-  }
-
-  if (!user) {
-    return <Text>Please log in to view your profile.</Text>;
-  }
+    fetchData();
+  }, [user, router]);
 
   const handleLogout = async () => {
     try {
@@ -179,17 +165,16 @@ useEffect(() => {
     }
   };
 
-
-  if (!fontsLoaded) {
-    return null; // or a loading indicator
-  }
-
-  if (loading) {
-    return <Text>Loading...</Text>; // You should create this component
+  if (!fontsLoaded || loading) {
+    return <Text>Loading...</Text>;
   }
 
   if (error) {
-    return <Text>{error}</Text>; // You should create this component
+    return <Text>{error}</Text>;
+  }
+
+  if (!user) {
+    return <Text>Please log in to view your profile.</Text>;
   }
   
   return (
@@ -215,26 +200,32 @@ useEffect(() => {
       <View className="p-6">
         <Text style={[human.title2, systemWeights.bold]} className="text-lg font-poppins mb-6">Insights</Text>
         <View className="flex-row gap-4 justify-between  mb-8">
-          <Stat icon="time" value="100%" label="Time management" />
-          <Stat icon="flame" value="10,000" label="Activity tracked" />
-          <Stat icon="trophy" value="10" label="Achievements" />
+          <Stat icon="time" value={userProfile?.stats.timeManagement || "0%"} label="Time management" />
+          <Stat icon="flame" value={userProfile?.stats.activityTracked || "0"} label="Activity tracked" />
+          <Stat icon="trophy" value={userProfile?.stats.achievements || "0"} label="Achievements" />
         </View>
         <Text style={[human.title2, systemWeights.bold]} className="text-lg font-poppins mb-6">Goals</Text>
         <View>
-          <Goal
-            title="Productivity guru"
-            description="Plan for 500 minutes!"
-            progress={200}
-            total={500}
-          />
-          <Goal
-            title="Weekend tasks"
-            description="Complete tasks on weekends!"
-            progress={1}
-            total={2}
-          />
+          {userProfile?.goals && userProfile.goals.length > 0 ? (
+            userProfile.goals.map((goal, index) => (
+              <Goal
+                key={index}
+                title={goal.title}
+                description={goal.description}
+                progress={goal.progress}
+                total={goal.total}
+              />
+            ))
+          ) : (
+            <View className="bg-white p-6 rounded-xl shadow-md">
+              <Text style={[human.body, systemWeights.light, { color: '#6B7280' }]} className="text-center font-poppins">
+                You haven't set any goals yet. Start setting goals to track your progress!
+              </Text>
+            </View>
+          )}
         </View>
       </View>
+      <View className="h-20"></View>
     </ScrollView>
   );
 };
